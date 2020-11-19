@@ -2,6 +2,7 @@
 from flask_restful import Resource, reqparse
 from flask_jwt import jwt_required
 from common.database import Database
+from models.item import ItemModel
 
 ##################### Example #####################
 ## All resources must be classes and inherit from Resource class
@@ -17,8 +18,6 @@ from common.database import Database
 
 ## Item Class
 class Item(Resource):
-    ## Table Name
-    TABLE_NAME = 'items'
 
     ## Utilizing reqparse to only allow a price element - We do not want to update name
     parser = reqparse.RequestParser()  ## Use to parse the request
@@ -35,30 +34,10 @@ class Item(Resource):
         :param name: Name of the item
         :return: Corresponding item or none if item not found
         """
-        item = self.find_by_name(name)
+        item = ItemModel.find_by_name(name)
         if item:
-            return item, 200
+            return item.json(), 200
         return {'message': 'Item not found'}, 404
-
-    @classmethod
-    def find_by_name(cls, name: str) -> tuple:
-        """
-        Search the items table for an existing item
-        :param name: Name of the item
-        :return: Item if exists in the db
-        """
-        ## Setup Connection & Cursor
-        connection, cursor = Database.connect_to_db()
-
-        query = "SELECT * FROM {table} WHERE name=?".format(table=cls.TABLE_NAME)
-        result = cursor.execute(query, (name,))
-        row = result.fetchone()
-
-        ## Close Connection
-        Database.close_connection_to_db(connection)
-
-        if row:
-            return {'item': {'name': row[0], 'price': row[1]}}, 200
 
     def post(self, name: str) -> tuple:
         """
@@ -66,36 +45,19 @@ class Item(Resource):
         :param name: Name of the item to search for / insert into the db
         :return: Item if successful, error message if not
         """
-        if self.find_by_name(name):
+        if ItemModel.find_by_name(name):
             return {'message': "An item with name '{}' already exists.".format(name)}, 200
 
         data = Item.parser.parse_args()
 
-        item = {'name': name, 'price': data['price']}
+        item = ItemModel(name, data['price'])
 
         try:
-            Item.insert(item)
+            item.insert()
         except:
             return {"message": "An error occurred inserting the item."}, 500
 
-        return item, 201
-
-    @classmethod
-    def insert(cls, item: dict) -> None:
-        """
-        Insert an item into the items table
-        :param item: JSON object containing the item information
-        :return: None
-        """
-        ## Setup Connection & Cursor
-        connection, cursor = Database.connect_to_db()
-
-        ## Insert the data
-        query = "INSERT INTO {table} VALUES(?, ?)".format(table=cls.TABLE_NAME)
-        cursor.execute(query, (item['name'], item['price']))
-
-        ## Close Connection
-        Database.close_connection_to_db(connection)
+        return item.json(), 201
 
     @jwt_required()
     def delete(self, name: str) -> tuple:
@@ -108,7 +70,7 @@ class Item(Resource):
         connection, cursor = Database.connect_to_db()
 
         ## Delete the item from the database
-        query = "DELETE FROM {table} WHERE name=?".format(table=self.TABLE_NAME)
+        query = "DELETE FROM items WHERE name=?"
         cursor.execute(query, (name,))
 
         ## Close Connection
@@ -124,35 +86,20 @@ class Item(Resource):
         :return: Updated item or error message if unsuccessful
         """
         data = Item.parser.parse_args()
-        item = self.find_by_name(name)
-        updated_item = {'name': name, 'price': data['price']}
+        item = ItemModel.find_by_name(name)
+        updated_item = ItemModel(name, data['price'])
         if item is None:
             try:
-                Item.insert(updated_item)
+                updated_item.insert()
             except:
                 return {"message": "An error occurred inserting the item."}, 500
         else:
             try:
-                Item.update(updated_item)
+                updated_item.update()
             except:
                 return {"message": "An error occurred updating the item."}, 500
-        return updated_item, 200
-
-    @classmethod
-    def update(cls, item: dict) -> None:
-        """
-        Update an item in the database
-        :param item: Item to be updated
-        :return: None
-        """
-        ## Setup Connection & Cursor
-        connection, cursor = Database.connect_to_db()
-
-        query = "UPDATE {table} SET price=? WHERE name=?".format(table=cls.TABLE_NAME)
-        cursor.execute(query, (item['price'], item['name']))
-
-        ## Close Connection
-        Database.close_connection_to_db(connection)
+                
+        return updated_item.json(), 200
 
 ## ItemList Class
 class ItemList(Resource):
@@ -170,7 +117,7 @@ class ItemList(Resource):
 
         ## Retrieve all items
         ## Get the data
-        query = "SELECT * FROM {table}".format(table=self.TABLE_NAME)
+        query = "SELECT * FROM items"
         result = cursor.execute(query)
 
         ## Add all returned records to list

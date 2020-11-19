@@ -1,6 +1,6 @@
 ## File will help with proper authentication
 ## Import libraries
-from resources.user import User
+from resources.user import UserModel
 from werkzeug.security import safe_str_cmp  ## Safe string comparison
 
 ##### Retire in favor of SQLite DB #####
@@ -23,7 +23,7 @@ def authenticate(username, password):
     :param password: The user's password
     :return: user object if found, None if not found
     """
-    user = User.find_by_username(username)
+    user = UserModel.find_by_username(username)
     if user and safe_str_cmp(user.password, password):
         return user
 
@@ -34,4 +34,4 @@ def identity(payload):
     :return: user object if found, None if not found
     """
     user_id = payload['identity']
-    return User.find_by_id(user_id)
+    return UserModel.find_by_id(user_id)
