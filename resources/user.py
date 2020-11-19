@@ -33,7 +33,7 @@ class User:
             user = None
 
         ## Close Connection
-        connection.close()
+        Database.close_connection_to_db(connection)
 
         return user
 
@@ -59,7 +59,7 @@ class User:
             user = None
 
         ## Close Connection
-        connection.close()
+        Database.close_connection_to_db(connection)
 
         return user
 
@@ -95,7 +95,7 @@ class UserRegister(Resource):
         query = "INSERT INTO {table} VALUES (NULL, ?, ?)".format(table=self.TABLE_NAME)
         cursor.execute(query, (data['username'], data['password']))
 
-        connection.commit()
-        connection.close()
+        ## Close Connection
+        Database.close_connection_to_db(connection)
 
         return {"message": "User created successfully"}, 201

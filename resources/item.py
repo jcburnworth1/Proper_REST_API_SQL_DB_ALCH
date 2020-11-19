@@ -53,7 +53,9 @@ class Item(Resource):
         query = "SELECT * FROM {table} WHERE name=?".format(table=cls.TABLE_NAME)
         result = cursor.execute(query, (name,))
         row = result.fetchone()
-        connection.close()
+
+        ## Close Connection
+        Database.close_connection_to_db(connection)
 
         if row:
             return {'item': {'name': row[0], 'price': row[1]}}, 200
@@ -92,9 +94,8 @@ class Item(Resource):
         query = "INSERT INTO {table} VALUES(?, ?)".format(table=cls.TABLE_NAME)
         cursor.execute(query, (item['name'], item['price']))
 
-        ## Commit changes & close connection
-        connection.commit()
-        connection.close()
+        ## Close Connection
+        Database.close_connection_to_db(connection)
 
     @jwt_required()
     def delete(self, name: str) -> tuple:
@@ -110,9 +111,8 @@ class Item(Resource):
         query = "DELETE FROM {table} WHERE name=?".format(table=self.TABLE_NAME)
         cursor.execute(query, (name,))
 
-        ## Commit changes & close connection
-        connection.commit()
-        connection.close()
+        ## Close Connection
+        Database.close_connection_to_db(connection)
 
         return {'message': 'Item deleted'}, 200
 
@@ -151,9 +151,8 @@ class Item(Resource):
         query = "UPDATE {table} SET price=? WHERE name=?".format(table=cls.TABLE_NAME)
         cursor.execute(query, (item['price'], item['name']))
 
-        ## Commit changes & close connection
-        connection.commit()
-        connection.close()
+        ## Close Connection
+        Database.close_connection_to_db(connection)
 
 ## ItemList Class
 class ItemList(Resource):
@@ -181,6 +180,6 @@ class ItemList(Resource):
             items.append({'name': row[0], 'price': row[1]})
 
         ## Close Connection
-        connection.close()
+        Database.close_connection_to_db(connection)
 
         return items, 200

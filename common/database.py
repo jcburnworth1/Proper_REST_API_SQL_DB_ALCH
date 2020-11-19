@@ -10,3 +10,8 @@ class Database(object):
         cursor = connection.cursor()
 
         return connection, cursor
+
+    @staticmethod
+    def close_connection_to_db(conn):
+        conn.commit()
+        conn.close()
