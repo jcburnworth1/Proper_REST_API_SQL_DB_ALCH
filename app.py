@@ -6,9 +6,11 @@ from flask_jwt import JWT
 from resources.user import UserRegister
 from resources.item import Item, ItemList
 from common.security import authenticate, identity
+from db import db
 
 ## Create the flask application
 app = Flask(__name__)  # '__main__'
+app.config['SQLALCHEMY_TRACK_MODFIATIONS'] = False ## Turn off flask sqlachemy tracking (not sqlachemy tracking)
 app.secret_key = 'lala'  ## If prod API, this would need to be a real key
 api = Api(app)  ## Allow for easy resource addition with GET, POST, DELETE, etc.
 
@@ -22,4 +24,5 @@ api.add_resource(UserRegister, '/register')
 
 ## Execute the program
 if __name__ == '__main__':
+    db.init_app(app)
     app.run(port=5000, debug=True)

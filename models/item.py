@@ -1,11 +1,18 @@
 ## Import libraries
 from common.database import Database
 from typing import Dict
+from db import db
 
 ## Item Class
-class ItemModel:
-    ## Table Name
-    TABLE_NAME = 'items'
+class ItemModel(db.Model): ## Extend SQLAlchemy model for easier db interaction
+    ## Setup SQLAchemy Variables
+    ## Table
+    __tablename__ = 'items'
+
+    ## Table Columns
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    price = db.Column(db.Float)
 
     def __init__(self, name: str, price: float) -> None:
         self.name = name
@@ -24,7 +31,7 @@ class ItemModel:
         ## Setup Connection & Cursor
         connection, cursor = Database.connect_to_db()
 
-        query = "SELECT * FROM {table} WHERE name=?".format(table=cls.TABLE_NAME)
+        query = "SELECT * FROM items WHERE name=?"
         result = cursor.execute(query, (name,))
         row = result.fetchone()
 
@@ -44,7 +51,7 @@ class ItemModel:
         connection, cursor = Database.connect_to_db()
 
         ## Insert the data
-        query = "INSERT INTO {table} VALUES(?, ?)".format(table=ItemModel.TABLE_NAME)
+        query = "INSERT INTO items VALUES(?, ?)"
         cursor.execute(query, (self.name, self.price))
 
         ## Close Connection
@@ -59,7 +66,7 @@ class ItemModel:
         ## Setup Connection & Cursor
         connection, cursor = Database.connect_to_db()
 
-        query = "UPDATE {table} SET price=? WHERE name=?".format(table=ItemModel.TABLE_NAME)
+        query = "UPDATE items SET price=? WHERE name=?"
         cursor.execute(query, (self.price, self.name))
 
         ## Close Connection

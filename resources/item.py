@@ -46,7 +46,7 @@ class Item(Resource):
         :return: Item if successful, error message if not
         """
         if ItemModel.find_by_name(name):
-            return {'message': "An item with name '{}' already exists.".format(name)}, 200
+            return {'message': "An item with name '{}' already exists.".format(name)}, 400
 
         data = Item.parser.parse_args()
 

@@ -9,6 +9,7 @@ flask-restful = "*"
 numpy = "*"
 flask-jwt = "*"
 sqlalchemy = "*"
+flask-sqlalchemy = "*"
 
 [dev-packages]
 

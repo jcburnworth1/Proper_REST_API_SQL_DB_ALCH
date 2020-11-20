@@ -1,9 +1,17 @@
 ## Import libraries
 from common.database import Database
+from db import db
 
 ## User Class
-class UserModel:
-    TABLE_NAME = 'users'
+class UserModel(db.Model): ## Extend SQLAlchemy model for easier db interaction
+    ## Setup SQLAchemy Variables
+    ## Table
+    __tablename__ = 'users'
+
+    ## Table Columns
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String)
+    password = db.Column(db.String)
 
     def __init__(self, _id: int, username: str, password: str) -> None:
         self.id = _id
@@ -21,7 +29,7 @@ class UserModel:
         connection, cursor = Database.connect_to_db()
 
         ## Find the user
-        query = "SELECT * FROM {table} WHERE username=?".format(table=cls.TABLE_NAME)
+        query = "SELECT * FROM users WHERE username=?"
         result = cursor.execute(query, (username,))  ## Parameter must always be a tuple
         row = result.fetchone()  ## Returns None if no results
 
@@ -47,7 +55,7 @@ class UserModel:
         connection, cursor = Database.connect_to_db()
 
         ## Find the user
-        query = "SELECT * FROM {table} WHERE id=?".format(table=cls.TABLE_NAME)
+        query = "SELECT * FROM users WHERE id=?"
         result = cursor.execute(query, (_id,))  ## Parameter must always be a tuple
         row = result.fetchone()  ## Returns None if no results
 
