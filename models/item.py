@@ -1,7 +1,6 @@
 ## Import libraries
-from common.database import Database
-from typing import Dict
 from db import db
+from typing import Dict
 
 ## Item Class
 class ItemModel(db.Model): ## Extend SQLAlchemy model for easier db interaction
@@ -28,46 +27,20 @@ class ItemModel(db.Model): ## Extend SQLAlchemy model for easier db interaction
         :param name: Name of the item
         :return: Item if exists in the db
         """
-        ## Setup Connection & Cursor
-        connection, cursor = Database.connect_to_db()
+        return cls.query.filter_by(name=name).first() ## Use SQLAlchemy to build model from database data
 
-        query = "SELECT * FROM items WHERE name=?"
-        result = cursor.execute(query, (name,))
-        row = result.fetchone()
-
-        ## Close Connection
-        Database.close_connection_to_db(connection)
-
-        if row:
-            return cls(*row) ## Argument unpacking example
-
-    def insert(self) -> None:
+    def save_to_db(self) -> None:
         """
-        Insert an item into the items table
-        :param item: JSON object containing the item information
+        Upsert an item into the items table
         :return: None
         """
-        ## Setup Connection & Cursor
-        connection, cursor = Database.connect_to_db()
+        db.session.add(self)
+        db.session.commit()
 
-        ## Insert the data
-        query = "INSERT INTO items VALUES(?, ?)"
-        cursor.execute(query, (self.name, self.price))
-
-        ## Close Connection
-        Database.close_connection_to_db(connection)
-
-    def update(self) -> None:
+    def delete_from_db(self) -> None:
         """
-        Update an item in the database
-        :param item: Item to be updated
-        :return: None
+        Delete an item from the items table
+        :return:
         """
-        ## Setup Connection & Cursor
-        connection, cursor = Database.connect_to_db()
-
-        query = "UPDATE items SET price=? WHERE name=?"
-        cursor.execute(query, (self.price, self.name))
-
-        ## Close Connection
-        Database.close_connection_to_db(connection)
+        db.session.delete(self)
+        db.session.commit()

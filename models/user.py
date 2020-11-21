@@ -1,5 +1,4 @@
 ## Import libraries
-from common.database import Database
 from db import db
 
 ## User Class
@@ -9,14 +8,17 @@ class UserModel(db.Model): ## Extend SQLAlchemy model for easier db interaction
     __tablename__ = 'users'
 
     ## Table Columns
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True) ## Auto incrementing
     username = db.Column(db.String)
     password = db.Column(db.String)
 
-    def __init__(self, _id: int, username: str, password: str) -> None:
-        self.id = _id
+    def __init__(self, username: str, password: str):
         self.username = username
         self.password = password
+
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
 
     @classmethod
     def find_by_username(cls, username):
@@ -25,24 +27,7 @@ class UserModel(db.Model): ## Extend SQLAlchemy model for easier db interaction
         :param username: String input of the username
         :return: User object, user, we will use for auth
         """
-        ## Setup Connection & Cursor
-        connection, cursor = Database.connect_to_db()
-
-        ## Find the user
-        query = "SELECT * FROM users WHERE username=?"
-        result = cursor.execute(query, (username,))  ## Parameter must always be a tuple
-        row = result.fetchone()  ## Returns None if no results
-
-        ## Create User object if we get data back
-        if row:
-            user = cls(*row)
-        else:
-            user = None
-
-        ## Close Connection
-        Database.close_connection_to_db(connection)
-
-        return user
+        return cls.query.filter_by(username=username).first()
 
     @classmethod
     def find_by_id(cls, _id):
@@ -51,21 +36,4 @@ class UserModel(db.Model): ## Extend SQLAlchemy model for easier db interaction
         :param _id: INT input fo the user_id
         :return: User object, user, we will use for auth
         """
-        ## Setup Connection & Cursor
-        connection, cursor = Database.connect_to_db()
-
-        ## Find the user
-        query = "SELECT * FROM users WHERE id=?"
-        result = cursor.execute(query, (_id,))  ## Parameter must always be a tuple
-        row = result.fetchone()  ## Returns None if no results
-
-        ## Create User object if we get data back
-        if row:
-            user = cls(*row)
-        else:
-            user = None
-
-        ## Close Connection
-        Database.close_connection_to_db(connection)
-
-        return user
+        return cls.query.filter_by(id=_id).first()

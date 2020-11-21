@@ -1,6 +1,5 @@
 ## Import libraries
 from flask_restful import Resource, reqparse
-from common.database import Database
 from models.user import UserModel
 
 ## UserRegister Class
@@ -30,12 +29,7 @@ class UserRegister(Resource):
         if UserModel.find_by_username(data['username']):
             return {"message": "User with that username already exists."}, 400
 
-        connection, cursor = Database.connect_to_db()
-
-        query = "INSERT INTO {table} VALUES (NULL, ?, ?)".format(table=self.TABLE_NAME)
-        cursor.execute(query, (data['username'], data['password']))
-
-        ## Close Connection
-        Database.close_connection_to_db(connection)
+        user = UserModel(**data) ## Unpack using * notation into user object
+        user.save_to_db()
 
         return {"message": "User created successfully"}, 201

@@ -1,7 +1,6 @@
 ## Import libraries
 from flask_restful import Resource, reqparse
 from flask_jwt import jwt_required
-from common.database import Database
 from models.item import ItemModel
 
 ##################### Example #####################
@@ -53,7 +52,7 @@ class Item(Resource):
         item = ItemModel(name, data['price'])
 
         try:
-            item.insert()
+            item.save_to_db()
         except:
             return {"message": "An error occurred inserting the item."}, 500
 
@@ -66,15 +65,12 @@ class Item(Resource):
         :param name: Name of the item
         :return: Message that item was successfully deleted
         """
-        ## Setup Connection & Cursor
-        connection, cursor = Database.connect_to_db()
+        ## Find the item
+        item = ItemModel.find_by_name(name)
 
-        ## Delete the item from the database
-        query = "DELETE FROM items WHERE name=?"
-        cursor.execute(query, (name,))
-
-        ## Close Connection
-        Database.close_connection_to_db(connection)
+        if item:
+            ## Delete from database
+            item.delete_from_db()
 
         return {'message': 'Item deleted'}, 200
 
@@ -87,46 +83,22 @@ class Item(Resource):
         """
         data = Item.parser.parse_args()
         item = ItemModel.find_by_name(name)
-        updated_item = ItemModel(name, data['price'])
+
         if item is None:
-            try:
-                updated_item.insert()
-            except:
-                return {"message": "An error occurred inserting the item."}, 500
+            item = ItemModel(name, data['price'])
         else:
-            try:
-                updated_item.update()
-            except:
-                return {"message": "An error occurred updating the item."}, 500
+            item.price = data['price']
+
+        item.save_to_db()
                 
-        return updated_item.json(), 200
+        return item.json(), 200
 
 ## ItemList Class
 class ItemList(Resource):
-    ## Table Name
-    TABLE_NAME = 'items'
-
     @jwt_required()
-    def get(self) -> tuple:
+    def get(self):
         """
         Return all items in the current items list
         :return: Items in the database
         """
-        ## Setup Connection & Cursor
-        connection, cursor = Database.connect_to_db()
-
-        ## Retrieve all items
-        ## Get the data
-        query = "SELECT * FROM items"
-        result = cursor.execute(query)
-
-        ## Add all returned records to list
-        items = []
-
-        for row in result:
-            items.append({'name': row[0], 'price': row[1]})
-
-        ## Close Connection
-        Database.close_connection_to_db(connection)
-
-        return items, 200
+        return {'items': [item.json() for item in ItemModel.query.all()]}
