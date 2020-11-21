@@ -6,6 +6,7 @@ from flask_restful import Api
 from flask_jwt import JWT
 from resources.user import UserRegister
 from resources.item import Item, ItemList
+from resources.store import Store, StoreList
 from common.security import authenticate, identity
 
 
@@ -24,9 +25,11 @@ def create_tables():
 jwt = JWT(app, authentication_handler=authenticate, identity_handler=identity)  # /auth
 
 ## Resources
+api.add_resource(UserRegister, '/register')
 api.add_resource(Item, '/item/<string:name>')  ## http://127.0.0.1:5000/item/chair
 api.add_resource(ItemList, '/items')
-api.add_resource(UserRegister, '/register')
+api.add_resource(Store, '/store/<string:name>')
+api.add_resource(StoreList, '/stores')
 
 ## Execute the program
 if __name__ == '__main__':

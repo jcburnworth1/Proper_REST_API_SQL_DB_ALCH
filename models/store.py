@@ -2,28 +2,24 @@
 from db import db
 from typing import Dict
 
-## Item Class
-class ItemModel(db.Model): ## Extend SQLAlchemy model for easier db interaction
+## Store Class
+class StoreModel(db.Model): ## Extend SQLAlchemy model for easier db interaction
     ## Setup SQLAchemy Variables
     ## Table
-    __tablename__ = 'items'
+    __tablename__ = 'stores'
 
     ## Table Columns
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
-    price = db.Column(db.Float)
 
-    ## Relate items and stores
-    store_id = db.Column(db.Integer, db.ForeignKey('stores.id'))
-    store = db.relationship('StoreModel')
+    ## Pull back all items associated with given store
+    items = db.relationship('ItemModel', lazy='dynamic') ## List of item models but don't load until StoreModel.json is called
 
-    def __init__(self, name: str, price: float, store_id: int):
+    def __init__(self, name: str):
         self.name = name
-        self.price = price
-        self.store_id = store_id
 
     def json(self) -> Dict:
-        return {'name': self.name, 'price': self.price}
+        return {'name': self.name, 'items': [item.json() for item in self.items.all()]}
 
     @classmethod ## Keep as class because it returns an object of ItemModel
     def find_by_name(cls, name: str):

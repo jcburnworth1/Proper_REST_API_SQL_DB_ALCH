@@ -16,7 +16,7 @@ class UserModel(db.Model): ## Extend SQLAlchemy model for easier db interaction
         self.username = username
         self.password = password
 
-    def save_to_db(self):
+    def save_to_db(self) -> None:
         db.session.add(self)
         db.session.commit()
 

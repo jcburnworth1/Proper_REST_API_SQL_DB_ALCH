@@ -4,8 +4,6 @@ from models.user import UserModel
 
 ## UserRegister Class
 class UserRegister(Resource):
-    TABLE_NAME = 'users'
-
     ## Setup parser object to look for username / password KV in JSON
     parser = reqparse.RequestParser()
     parser.add_argument('username',
