@@ -57,4 +57,4 @@ class StoreList(Resource):
 
         :return:
         """
-        return {'stores': list(map(lambda x: x.json(), StoreModel.query.all()))}
+        return {'stores': [store.json() for store in StoreModel.find_all()]}

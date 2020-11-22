@@ -93,4 +93,4 @@ class ItemList(Resource):
         Return all items in the current items list
         :return: Items in the database
         """
-        return {'items': [item.json() for item in ItemModel.query.all()]}
+        return {'items': [item.json() for item in ItemModel.find_all()]}

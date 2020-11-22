@@ -23,7 +23,11 @@ class ItemModel(db.Model): ## Extend SQLAlchemy model for easier db interaction
         self.store_id = store_id
 
     def json(self) -> Dict:
-        return {'name': self.name, 'price': self.price}
+        return {'id': self.id,
+                'name': self.name,
+                'price': self.price,
+                'store_id': self.store_id
+        }
 
     @classmethod ## Keep as class because it returns an object of ItemModel
     def find_by_name(cls, name: str):
@@ -33,6 +37,10 @@ class ItemModel(db.Model): ## Extend SQLAlchemy model for easier db interaction
         :return: Item if exists in the db
         """
         return cls.query.filter_by(name=name).first() ## Use SQLAlchemy to build model from database data
+
+    @classmethod
+    def find_all(cls):
+        return cls.query.all()
 
     def save_to_db(self) -> None:
         """
