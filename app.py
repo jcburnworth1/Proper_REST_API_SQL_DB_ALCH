@@ -1,6 +1,6 @@
 ## Reference Code - https://github.com/tecladocode/rest-api-sections/tree/master/section6
 ## Import libraries
-from db import db
+from common.db import db
 from flask import Flask
 from flask_restful import Api
 from flask_jwt import JWT

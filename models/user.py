@@ -1,5 +1,5 @@
 ## Import libraries
-from db import db
+from common.db import db
 
 ## User Class
 class UserModel(db.Model): ## Extend SQLAlchemy model for easier db interaction

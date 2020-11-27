@@ -48,7 +48,7 @@ class User(Resource):
         return user.json(), 200
 
     @classmethod
-    def delete(cls, user_id):
+    def delete(cls, user_id) -> tuple:
         """
         Delete the record associated with a given user_id
         :param user_id:

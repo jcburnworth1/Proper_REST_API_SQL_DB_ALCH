@@ -1,5 +1,5 @@
 ## Import libraries
-from db import db
+from common.db import db
 from typing import Dict
 
 ## Store Class
