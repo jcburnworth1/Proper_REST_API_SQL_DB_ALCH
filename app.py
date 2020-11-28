@@ -2,6 +2,7 @@
 ## Import libraries
 from common.db import db
 from typing import Dict
+from blacklist import BLACKLIST
 from flask import Flask, jsonify
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
@@ -15,6 +16,8 @@ app = Flask(__name__)  # '__main__'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 app.config['SQLALCHEMY_TRACK_MODFICATIONS'] = False ## Turn off flask sqlachemy tracking (not sqlachemy tracking)
 app.config['PROPOGATE_EXCEPTIONS'] = True
+app.config['JWT_BLACKLIST_ENABLED'] = True
+app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access','refresh']
 app.secret_key = 'lala'  ## If prod API, this would need to be a real key
 api = Api(app)  ## Allow for easy resource addition with GET, POST, DELETE, etc.
 
@@ -40,6 +43,10 @@ def add_claims_to_jwt(identity) -> Dict: ## Identity is the value of user.id we 
     if identity == 1: ## Instead of hard-coding, you should read from a config or database
         return {'is_admin': True}
     return {'is_admin': False}
+
+@jwt.token_in_blacklist_loader
+def check_if_token_in_blacklist(decrypted_token):
+    return decrypted_token['identity'] in BLACKLIST ## Contains value set when token created
 
 @jwt.expired_token_loader
 def expired_token_callback() -> tuple:
