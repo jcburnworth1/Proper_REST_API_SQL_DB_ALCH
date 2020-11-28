@@ -2,7 +2,7 @@
 from common.db import db
 from typing import Dict
 
-## Store Class
+## Store
 class StoreModel(db.Model): ## Extend SQLAlchemy model for easier db interaction
     ## Setup SQLAchemy Variables
     ## Table
@@ -40,7 +40,7 @@ class StoreModel(db.Model): ## Extend SQLAlchemy model for easier db interaction
 
     def save_to_db(self) -> None:
         """
-        Upsert an item into the items table
+        Upsert a new store into the store table
         :return: None
         """
         db.session.add(self)
@@ -48,8 +48,8 @@ class StoreModel(db.Model): ## Extend SQLAlchemy model for easier db interaction
 
     def delete_from_db(self) -> None:
         """
-        Delete an item from the items table
-        :return:
+        Delete a store from the store table
+        :return: None
         """
         db.session.delete(self)
         db.session.commit()

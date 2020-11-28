@@ -2,7 +2,7 @@
 from common.db import db
 from typing import Dict
 
-## Item Class
+## Item
 class ItemModel(db.Model): ## Extend SQLAlchemy model for easier db interaction
     ## Setup SQLAchemy Variables
     ## Table
@@ -53,7 +53,7 @@ class ItemModel(db.Model): ## Extend SQLAlchemy model for easier db interaction
     def delete_from_db(self) -> None:
         """
         Delete an item from the items table
-        :return:
+        :return: None
         """
         db.session.delete(self)
         db.session.commit()

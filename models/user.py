@@ -1,7 +1,7 @@
 ## Import libraries
 from common.db import db
 
-## User Class
+## User
 class UserModel(db.Model): ## Extend SQLAlchemy model for easier db interaction
     ## Setup SQLAchemy Variables
     ## Table
@@ -23,10 +23,18 @@ class UserModel(db.Model): ## Extend SQLAlchemy model for easier db interaction
         }
 
     def save_to_db(self) -> None:
+        """
+        Insert a new user into the user table
+        :return: None
+        """
         db.session.add(self)
         db.session.commit()
 
-    def delete_from_db(self):
+    def delete_from_db(self) -> None:
+        """
+        Delete a user from the user table
+        :return: None
+        """
         db.session.delete(self)
         db.session.commit()
 

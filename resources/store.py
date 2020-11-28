@@ -2,28 +2,27 @@
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required, get_jwt_claims
 from models.store import StoreModel
-from typing import Dict
 
-## Store Class
+## Store
 class Store(Resource):
     @jwt_required
     def get(self, name) -> tuple:
         """
-
-        :param name:
-        :return:
+        Retrieve the store base on incoming name
+        :param name: Name (integer id) of the store
+        :return: Store json if found, message if not found
         """
         store = StoreModel.find_by_name(name)
         if store:
-            return store.json()
+            return store.json(), 200
         return {'message': 'Store not found'}, 404
 
     @jwt_required
     def post(self, name) -> tuple:
         """
-
-        :param name:
-        :return:
+        Add a new store to the database
+        :param name: Name (integer id) of the store
+        :return: Store JSON if successful, message if not successful
         """
         if StoreModel.find_by_name(name):
             return {'message': "A store with name '{}' already exists.".format(name)}, 400
@@ -39,9 +38,9 @@ class Store(Resource):
     @jwt_required
     def delete(self, name) -> tuple:
         """
-
-        :param name:
-        :return:
+        Delete a store from the database
+        :param name: Name (integer id) of the store
+        :return: Message if successful or failure
         """
         ## Check is_admin
         claims = get_jwt_claims()
@@ -55,12 +54,12 @@ class Store(Resource):
 
         return {'message': 'Store deleted'}, 200
 
-## StoreList Class
+## Store List
 class StoreList(Resource):
     @jwt_required
     def get(self) -> tuple:
         """
-
-        :return:
+        Return a list of all stores in the database
+        :return: Store JSON
         """
         return {'stores': [store.json() for store in StoreModel.find_all()]}, 200

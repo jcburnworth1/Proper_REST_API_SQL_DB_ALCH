@@ -1,9 +1,13 @@
 ## Import libraries
 from flask_restful import Resource, reqparse
-from flask_jwt_extended import jwt_required, get_jwt_claims, jwt_optional, get_jwt_identity
+from flask_jwt_extended import (
+    jwt_required, get_jwt_claims,
+    jwt_optional,
+    get_jwt_identity,
+    fresh_jwt_required)
 from models.item import ItemModel
 
-## Item Class
+## Item
 class Item(Resource):
     ## Utilizing reqparse to only allow a price element - We do not want to update name
     parser = reqparse.RequestParser()  ## Use to parse the request
@@ -23,19 +27,19 @@ class Item(Resource):
         """
         Take in the name and return the matching item
         :param name: Name of the item
-        :return: Corresponding item or none if item not found
+        :return: Corresponding item or message if item not found
         """
         item = ItemModel.find_by_name(name)
         if item:
             return item.json(), 200
         return {'message': 'Item not found'}, 404
 
-    @jwt_required
+    @fresh_jwt_required ## Forces a fresh login
     def post(self, name: str) -> tuple:
         """
         Search the db and insert if it does not exist
         :param name: Name of the item to search for / insert into the db
-        :return: Item if successful, error message if not
+        :return: Item if successful, message if not
         """
         if ItemModel.find_by_name(name):
             return {'message': "An item with name '{}' already exists.".format(name)}, 400
@@ -92,7 +96,7 @@ class Item(Resource):
                 
         return item.json(), 200
 
-## ItemList Class
+## Item List
 class ItemList(Resource):
     @jwt_optional
     def get(self) -> tuple:
