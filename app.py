@@ -3,11 +3,10 @@
 from common.db import db
 from flask import Flask
 from flask_restful import Api
-from flask_jwt import JWT
-from resources.user import UserRegister, User
+from flask_jwt_extended import JWTManager
+from resources.user import UserRegister, User, UserLogin
 from resources.item import Item, ItemList
 from resources.store import Store, StoreList
-from common.security import authenticate, identity
 
 ## Create the flask application
 app = Flask(__name__)  # '__main__'
@@ -22,10 +21,11 @@ def create_tables():
     db.create_all()
 
 ## Return JWT token for auth later on
-jwt = JWT(app, authentication_handler=authenticate, identity_handler=identity)  # /auth
+jwt = JWTManager(app) ## Does not create the auth endpoint like JWT
 
 ## Resources
 api.add_resource(UserRegister, '/register')
+api.add_resource(UserLogin, '/login')
 api.add_resource(User, '/user/<int:user_id>')
 api.add_resource(Item, '/item/<string:name>')  ## http://127.0.0.1:5000/item/chair
 api.add_resource(ItemList, '/items')

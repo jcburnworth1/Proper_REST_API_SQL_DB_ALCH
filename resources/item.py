@@ -1,6 +1,6 @@
 ## Import libraries
 from flask_restful import Resource, reqparse
-from flask_jwt import jwt_required
+from flask_jwt_extended import jwt_required
 from models.item import ItemModel
 
 ## Item Class
@@ -17,7 +17,7 @@ class Item(Resource):
                         required=True,
                         help='Every item needs a store id')
 
-    @jwt_required()  ## User must authenticate before calling method
+    @jwt_required  ## User must authenticate before calling method
     def get(self, name: str) -> tuple:  ## Currently allows items of same name
         """
         Take in the name and return the matching item
@@ -29,7 +29,7 @@ class Item(Resource):
             return item.json(), 200
         return {'message': 'Item not found'}, 404
 
-    @jwt_required()
+    @jwt_required
     def post(self, name: str) -> tuple:
         """
         Search the db and insert if it does not exist
@@ -50,7 +50,7 @@ class Item(Resource):
 
         return item.json(), 201
 
-    @jwt_required()
+    @jwt_required
     def delete(self, name: str) -> tuple:
         """
         Delete an item from the database based on the item name
@@ -66,7 +66,7 @@ class Item(Resource):
 
         return {'message': 'Item deleted'}, 200
 
-    @jwt_required()
+    @jwt_required
     def put(self, name: str) -> tuple:
         """
         Update if item already exists, insert if item does not exist
@@ -87,7 +87,7 @@ class Item(Resource):
 
 ## ItemList Class
 class ItemList(Resource):
-    @jwt_required()
+    @jwt_required
     def get(self):
         """
         Return all items in the current items list
