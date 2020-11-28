@@ -1,12 +1,13 @@
 ## Import libraries
 from flask_restful import Resource, reqparse
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_claims
 from models.item import ItemModel
 
 ## Item Class
 class Item(Resource):
     ## Utilizing reqparse to only allow a price element - We do not want to update name
     parser = reqparse.RequestParser()  ## Use to parse the request
+
     ## Add specifics that parse will look for / enforce
     parser.add_argument('price',
                         type=float,
@@ -57,6 +58,12 @@ class Item(Resource):
         :param name: Name of the item
         :return: Message that item was successfully deleted
         """
+        ## Check is_admin
+        claims = get_jwt_claims()
+
+        if not claims['is_admin']:
+            return {'message': 'Admin privilege is required'}, 404
+
         ## Find the item
         item = ItemModel.find_by_name(name)
 

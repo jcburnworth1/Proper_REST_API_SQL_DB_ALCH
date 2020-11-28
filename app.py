@@ -18,10 +18,28 @@ api = Api(app)  ## Allow for easy resource addition with GET, POST, DELETE, etc.
 
 @app.before_first_request
 def create_tables():
+    """
+    Intiailize data.db automatically
+    :return: none, data.db created in root
+    """
     db.create_all()
 
 ## Return JWT token for auth later on
 jwt = JWTManager(app) ## Does not create the auth endpoint like JWT
+
+## Data we can attach to JWT payload
+@jwt.user_claims_loader ## Modify function below and add to JWT manager / app
+def add_claims_to_jwt(identity): ## Identity is the value of user.id we want to add claims to
+    """
+
+    :param identity:
+    :return:
+    """
+    if identity == 1: ## Instead of hard-coding, you should read from a config or database
+        return {'is_admin': True}
+    return {'is_admin': False}
+
+
 
 ## Resources
 api.add_resource(UserRegister, '/register')

@@ -1,6 +1,6 @@
 ## Import libraries
 from flask_restful import Resource, reqparse
-from flask_jwt_extended import create_access_token, create_refresh_token
+from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_claims
 from models.user import UserModel
 from werkzeug.security import safe_str_cmp
 
@@ -58,6 +58,12 @@ class User(Resource):
         :param user_id:
         :return: JSON, HTML response
         """
+        ## Check is_admin
+        claims = get_jwt_claims()
+
+        if not claims['is_admin']:
+            return {'message': 'Admin privilege is required'}, 404
+
         user = UserModel.find_by_id(user_id)
 
         if not user:
