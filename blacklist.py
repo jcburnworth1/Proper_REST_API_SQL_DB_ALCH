@@ -1,1 +1,2 @@
-BLACKLIST = {2, 3}
+## Blacklist to revoke tokens
+BLACKLIST = set()

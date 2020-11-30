@@ -1,11 +1,14 @@
 ## Import libraries
+from blacklist import BLACKLIST
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import (
+    jwt_required,
     create_access_token,
     create_refresh_token,
     get_jwt_claims,
     jwt_refresh_token_required,
-    get_jwt_identity)
+    get_jwt_identity,
+    get_raw_jwt)
 from models.user import UserModel
 from werkzeug.security import safe_str_cmp
 
@@ -108,6 +111,15 @@ class UserLogin(Resource):
 
         ## If user doesn't exists
         return {'message': 'Invalid credentials'}, 401
+
+## User Logout
+class UserLogout(Resource):
+    @jwt_required
+    def post(self) -> tuple:
+        jti = get_raw_jwt()['jti'] ## jti is JWT ID that is a unique identifier for a JWT
+        BLACKLIST.add(jti)
+        return {'message': 'Successfully logged out'}, 200
+
 
 ## Token Refresh - Receive the refresh token we created at login
 class TokenRefresh(Resource):

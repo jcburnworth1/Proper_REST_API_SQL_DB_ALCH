@@ -6,7 +6,7 @@ from blacklist import BLACKLIST
 from flask import Flask, jsonify
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
-from resources.user import UserRegister, User, UserLogin, TokenRefresh
+from resources.user import UserRegister, User, UserLogin, UserLogout, TokenRefresh
 from resources.item import Item, ItemList
 from resources.store import Store, StoreList
 
@@ -46,7 +46,7 @@ def add_claims_to_jwt(identity) -> Dict: ## Identity is the value of user.id we 
 
 @jwt.token_in_blacklist_loader
 def check_if_token_in_blacklist(decrypted_token):
-    return decrypted_token['identity'] in BLACKLIST ## Contains value set when token created
+    return decrypted_token['jti'] in BLACKLIST
 
 @jwt.expired_token_loader
 def expired_token_callback() -> tuple:
@@ -109,6 +109,7 @@ def revoked_token_callback() -> tuple:
 api.add_resource(UserRegister, '/register')
 api.add_resource(UserLogin, '/login')
 api.add_resource(TokenRefresh, '/refresh')
+api.add_resource(UserLogout, '/logout')
 api.add_resource(User, '/user/<int:user_id>')
 api.add_resource(Item, '/item/<string:name>')  ## http://127.0.0.1:5000/item/chair
 api.add_resource(ItemList, '/items')
